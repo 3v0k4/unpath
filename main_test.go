@@ -11,26 +11,6 @@ import (
 )
 
 func TestUnpathsNonExistingCommand(t *testing.T) {
-	var stdout, stderr bytes.Buffer
-	status := newProgram([]string{"unpath", "not-cat", "cat", "main_test.go"}, &stdout, &stderr).main()
-	if status != 0 {
-		t.Fatal(stderr)
-	}
-}
-
-func TestUnpathsCommand(t *testing.T) {
-	var stdout, stderr bytes.Buffer
-	status := newProgram([]string{"unpath", "cat", "cat", "main_test.go"}, &stdout, &stderr).main()
-	if status == 0 {
-		t.Errorf("got: %d; want: %d", status, 0)
-	}
-	message := "env: cat: No such file or directory"
-	if !strings.Contains(stderr.String(), message) {
-		t.Errorf("got: %s; want: %s", stderr.String(), message)
-	}
-}
-
-func TestUnpathsNonExistingCommandThroughScript(t *testing.T) {
 	script := createScript("#!/usr/bin/env bash\ncat $1", t.Fatal)
 	var stdout, stderr bytes.Buffer
 	status := newProgram([]string{"unpath", "not-cat", script.Name(), "main_test.go"}, &stdout, &stderr).main()
@@ -39,7 +19,7 @@ func TestUnpathsNonExistingCommandThroughScript(t *testing.T) {
 	}
 }
 
-func TestUnpathsCommandThroughScript(t *testing.T) {
+func TestUnpathsCommand(t *testing.T) {
 	script := createScript("#!/usr/bin/env bash\ncat $1", t.Fatal)
 	var stdout, stderr bytes.Buffer
 	status := newProgram([]string{"unpath", "cat", script.Name(), "main_test.go"}, &stdout, &stderr).main()
@@ -65,8 +45,7 @@ func Test_e2e_UnpathsSiblingCommand(t *testing.T) {
 	path = fmt.Sprintf("%s:%s", dir, path)
 
 	arg := []string{"go", "run", "main.go", sibling_, script_, "main_test.go"}
-	arg = append([]string{"-P", path}, arg...)
-	cmd := exec.Command("env", arg...)
+	cmd := exec.Command(arg[0], arg[1:]...)
 	cmd.Env = append(cmd.Environ(), fmt.Sprintf("PATH=%s", path))
 	err := cmd.Run()
 	if err != nil {
@@ -85,8 +64,7 @@ func Test_e2e_UnpathsCommand(t *testing.T) {
 	path = fmt.Sprintf("%s:%s", dir, path)
 
 	arg := []string{"go", "run", "main.go", command_, script_, "main_test.go"}
-	arg = append([]string{"-P", path}, arg...)
-	cmd := exec.Command("env", arg...)
+	cmd := exec.Command(arg[0], arg[1:]...)
 	cmd.Env = append(cmd.Environ(), fmt.Sprintf("PATH=%s", path))
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
@@ -133,6 +111,7 @@ func createScriptIn(dir, content string, fatal func(args ...any)) *os.File {
 	if err != nil {
 		fatal(err)
 	}
+	defer file.Close()
 	err = os.Chmod(file.Name(), 0777)
 	if err != nil {
 		fatal(err)

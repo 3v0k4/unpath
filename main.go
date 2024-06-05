@@ -122,12 +122,12 @@ func (p *program) unpathEntry(dir string, entries []fs.DirEntry, entriesIndex in
 }
 
 func (p *program) run(cmd []string, path string) int {
-	arg := append([]string{"-P", path}, cmd...)
-	subcmd := exec.Command("env", arg...)
+	subcmd := exec.Command(cmd[0], cmd[1:]...)
 	subcmd.Env = append(subcmd.Environ(), fmt.Sprintf("PATH=%s", path))
 	subcmd.Stdout = p.stdout
 	subcmd.Stderr = p.stderr
-	if subcmd.Run() == nil {
+	err := subcmd.Run()
+	if err == nil {
 		return 0
 	} else {
 		return 1
