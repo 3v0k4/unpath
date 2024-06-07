@@ -34,7 +34,7 @@ Or fetch the executable from GitHub:
 ```bash
 # PLATFORM {linux,darwin}
 # ARCHITECTURE {amd64,arm64}
-curl https://github.com/3v0k4/unpath/releases/download/v0.1.0/unpath-PLATFORM-ARCH --output unpath
+curl --location https://github.com/3v0k4/unpath/releases/download/v0.1.0/unpath-PLATFORM-ARCH --output unpath
 chmod +x unpath
 ./unpath
 ```
