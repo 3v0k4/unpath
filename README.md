@@ -21,6 +21,16 @@ Examples:
   unpath cat unpath env CMD
 ```
 
+## Users
+
+<p>
+  <a href="https://github.com/3v0k4/favicon_factory">
+    <img width="100" width="100" hspace="10" src=".github/images/favicon_factory.svg" />
+  </a>
+</p>
+
+FaviconFactory uses unpath to test selectively the Vips or ImageMagick integration.
+
 ## Installation
 
 You can install unpath with Go:
